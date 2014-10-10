@@ -50,7 +50,7 @@ function collectmethods(imps)
   return methods
 end
 
-function create(class::Class, args...)
+function Object(class::Class, args...)
   Object(collectmethods(class.imps),
          class.tags,
          class.init(args...))
