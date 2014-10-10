@@ -66,8 +66,4 @@ end
 tilde(object::Object, method::Symbol) = (args...) -> call(object, method, args...)
 tilde(object::Object, method::Symbol, args) = call(object, method, args...)
 
-# Testing
-
-selfie(self) = println(self)
-
 end # module
