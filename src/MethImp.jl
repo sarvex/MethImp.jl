@@ -21,13 +21,18 @@ triggers(f::Implementation) = Set([name(f)])
 
 # Objects
 
-# type Class
-# end
+type Class
+#   var::Var
+  imps::Set{Implementation}
+  tags::Set{Symbol}
+  init::Function
+end
 
 typealias MethodSet Dict{Method, Set{Implementation}}
 
 type Object{T}
   methods::MethodSet
+  tags::Set{Symbol}
   data::T
 end
 
@@ -45,8 +50,10 @@ function collectmethods(imps)
   return methods
 end
 
-function create(spec)
-  Object(collectmethods(spec[:methods]), nothing)
+function create(class::Class, args...)
+  Object(collectmethods(class.imps),
+         class.tags,
+         class.init(args...))
 end
 
 function call(obj::Object, method, args...)
@@ -61,12 +68,6 @@ tilde(object::Object, method::Symbol, args) = call(object, method, args...)
 
 # Testing
 
-selfie(this) = println(this)
-
-o = create({:methods => [selfie]})
-
-call(o, :selfie)
-
-o~selfie()
+selfie(self) = println(self)
 
 end # module
