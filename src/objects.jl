@@ -1,9 +1,3 @@
-# type Class
-#   tags::Set{Any}
-#   imps::Set{Any}
-#   init::Function
-# end
-
 type Object{T}
   tags::Set{Any}
   methods::Methods
@@ -22,33 +16,44 @@ function refresh!(o::Object)
   return
 end
 
+function refresh!(os)
+  for o in os
+    refresh!(o)
+  end
+end
+
+typealias Objects WeakSet{Object}
+
+const objsbytag = Dict{Any, Objects}()
+
+bytag(tag) = Set{Any}(get(objsbytag, tag, []))
+bytag(tag::TagAnd) = intersect(bytag(tag.a), bytag(tag.b))
+bytag(tag::TagOr) = union(bytag(tag.a), bytag(tag.b))
+
+refreshtag!(t) = refresh!(bytag(t))
+
 function addtags(o, ts...)
   for t in ts
     push!(tags(o), t)
+    push!(get!(objsbytag, t, Objects()), o)
   end
   refresh!(o)
 end
 
-# o = Object(@d())
+function rmtags(o, ts...)
+  for t in ts
+    delete!(tags(o), t)
+    delete!(get(objsbytag, t, Objects()), o)
+  end
+  refresh!(o)
+end
 
-# addtags(o, :julia, :editor)
+function msg(obj::Object, method, args...)
+  imps = get(obj.methods, method, Set())
+  for imp in imps
+    imp(obj, args...)
+  end
+end
 
-# o
-
-# typealias Objects WeakSet{Any}
-
-# function Object(class::Class, args...)
-#   Object(collectmethods(class.imps),
-#          class.tags,
-#          class.init(args...))
-# end
-
-# function call(obj::Object, method, args...)
-#   imps = get(obj.methods, method, Set{Implementation}())
-#   for imp in imps
-#     imp(obj, args...)
-#   end
-# end
-
-# tilde(object::Object, method::Symbol) = (args...) -> call(object, method, args...)
-# tilde(object::Object, method::Symbol, args) = call(object, method, args...)
+tilde(object::Object, method::Symbol) = (args...) -> msg(object, method, args...)
+tilde(object::Object, method::Symbol, args) = msg(object, method, args...)

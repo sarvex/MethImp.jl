@@ -75,6 +75,8 @@ decompose(x) = map(xs -> unique(sort(xs)), splithairs(x))
   decompose(a) == decompose(b)
 
 # The Tag Tree
+# TODO: Don't use sets for this
+# perhaps split child nodes and data
 
 type TagTree
   tag
@@ -127,12 +129,14 @@ function assoc!(tree::TagTree, tag, x)
   for node in nodes!(tree, tag)
     push!(node, x)
   end
+  refreshtag!(tag)
 end
 
 function dissoc!(tree::TagTree, tag, x)
   for node in nodes!(tree, tag)
     delete!(node, x)
   end
+  refreshtag!(tag)
 end
 
 # Tag/Implementation interface
