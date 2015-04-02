@@ -144,16 +144,20 @@ end
 const tagtree = TagTree()
 
 current_tag = nothing
-current_tag!(t) = (global current_tag = t)
+current_tag!(t) = (global current_tag = t; return)
 
 macro tag (t)
   :(current_tag!(@tag_ $(esc((t)))))
 end
 
 macro + (x)
-  :(assoc!(tagtree, current_tag, $(esc(x))))
+  :(let
+      assoc!(tagtree, current_tag, $(esc(x)))
+    end)
 end
 
 macro - (x)
-  :(dissoc!(tagtree, current_tag, $(esc(x))))
+  :(let
+      dissoc!(tagtree, current_tag, $(esc(x)))
+    end)
 end
