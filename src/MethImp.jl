@@ -19,6 +19,9 @@ using Lazy
 # determines a set of implementations that form
 # the object's behaviour.
 
+export object, @~, @tag, @tag_str, @+, @-, addtags, rmtags,
+  imp
+
 include("weakset.jl")
 include("meta.jl")
 include("tags.jl")
