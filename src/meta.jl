@@ -9,12 +9,12 @@ tilde(a, b, args) = tilde(a, b)(args...)
 
 macro ~ (args...)
   tildify(a, b) =
-    isexpr(b, Symbol) ? :(tilde($a, $(Expr(:quote, b)))) :
-    isexpr(b, :call) && isexpr(b.args[1], Symbol) ? :(tilde($a, $(Expr(:quote, b.args[1])),
+    isexpr(b, Symbol) ? :(tilde($(esc(a)), $(Expr(:quote, b)))) :
+    isexpr(b, :call) && isexpr(b.args[1], Symbol) ? :(tilde($(esc(a)), $(Expr(:quote, b.args[1])),
                                                             [$(map(esc, b.args[2:end])...)])) :
     error("Bad ~ syntax")
 
-  tildify(a, xs...) = reduce(tildify, esc(a), xs)
+  tildify(a, xs...) = reduce(tildify, a, xs)
 
   tildify(args...)
 end
